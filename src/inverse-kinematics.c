@@ -118,9 +118,9 @@
 
 #define PI 3.141592654
 
-#define L1 12.0  // in centimeters
-#define L2 12.0
-#define L3 6.0
+#define L1 13.5  // in centimeters
+#define L2 12.5
+#define L3 7
 
 // Joint angles
 float theta_e;   // End effector orientation
@@ -157,8 +157,9 @@ int inverse_kinematics(double xe, double ye, double ze, double theta_e) {
     // theta_1 = atan2(zw, sqrt(xw*xw + yw*yw)) + acos(a);
     theta_1 = atan2(yw, xw) + acos(a);
 
-    theta_2 = -(PI - acos(b));
-    theta_3 = theta_e - theta_1 - theta_2;
+    theta_2 = (PI/2 + acos(-b));   // pi/2+acosb
+
+    theta_3 = PI/2 + theta_e - theta_1 - theta_2;
 
     return 0;
 }
