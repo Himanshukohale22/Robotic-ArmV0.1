@@ -15,6 +15,14 @@ float theta_2;
 float theta_3;
 
 
+//changing variables
+
+float angle_theta_0;
+float angle_theta_1;
+float angle_theta_2;
+float angle_theta_3;
+
+
 #define STEP_Y 2   // step size along Y
 #define STEP_X 2   // step size along X
 #define STEP_z 2   // step size along z
@@ -26,15 +34,13 @@ typedef struct {
 
 float degree_angle = 180/PI;
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 //inverse kinematics
 
 int inverse_kinematics(double xe, double ye, double ze, double theta_e) {
     
-
     theta_0 = atan2(ze, xe);
-
+    xe =  cos(theta_0) * xe + sin(theta_0) * ze;
     double xw = xe - (L3 * cos(theta_e));
     double yw = ye - (L3 * sin(theta_e));
     double zw = ze ;
@@ -59,6 +65,13 @@ int inverse_kinematics(double xe, double ye, double ze, double theta_e) {
 
     theta_3 =  theta_e - theta_1 - theta_2;
 
+    ///some changes done in theta_ angles declaring variables for the same angles 
+
+    angle_theta_0 = theta_0;
+    angle_theta_1 = theta_1;
+    angle_theta_2 = PI + (theta_2);
+    angle_theta_3 = 0; //PI/2 + theta_e + (theta_1 - angle_theta_2);
+
     return 0;
 }
 
@@ -74,18 +87,30 @@ void zigzag_motion_1D(Point3D start, Point3D end,FILE *fptr, FILE *fptr_agnlerad
 
             for (int y = start.y; y <= end.y; y += STEP_Y) {
                 inverse_kinematics(x,y,z,theta_e);
-                printf("%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, PI+theta_2, (PI/2)+theta_3);
-                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, (PI+theta_2)*degree_angle, ((PI/2)+theta_3)*degree_angle);
+                printf("%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                // fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, -(theta_2), (PI/2)+theta_3);
+                // fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, -(theta_2) , (PI/2)+theta_3);
+                // fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, (-theta_2)*degree_angle, ((PI/2)+theta_3)*degree_angle);
+
+                /////
+                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z,angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0*degree_angle, angle_theta_1*degree_angle, angle_theta_2*degree_angle, angle_theta_3*degree_angle);
+
             }
         } else {
             for (int y = end.y; y >= start.y; y -= STEP_Y) {
                 inverse_kinematics(x,y,z,theta_e);
-                printf("%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, PI+theta_2, theta_3);
-                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, (PI+theta_2)*degree_angle, (theta_3)*degree_angle);
+                printf("%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                // fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, -(theta_2), (PI/2)+theta_3);
+                // fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2 , (PI/2)+theta_3);
+                // fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, (-theta_2)*degree_angle, ((PI/2)+theta_3)*degree_angle);
+                
+                ////////
+                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z,angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0*degree_angle, angle_theta_1*degree_angle, angle_theta_2*degree_angle, angle_theta_3*degree_angle);
+
             }
         }
         dir *= -1; // flip direction each row
@@ -103,17 +128,29 @@ void zigzag_motion_2D(Point3D start, Point3D end,FILE *fptr ,FILE *fptr_agnlerad
             for (int z = start.z; z <= end.z; z += STEP_z) {
                 inverse_kinematics(x,y,z,theta_e);
                 printf("%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, PI+theta_2, theta_3);
-                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, (PI+theta_2)*degree_angle, (theta_3)*degree_angle);
+                // fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, -(theta_2), (PI/2)+theta_3);
+                // fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, -(theta_2) , (PI/2)+theta_3);
+                // fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, -(theta_2)*degree_angle, ((PI/2)+theta_3)*degree_angle);
+                
+                /////////
+                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z,angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0*degree_angle, angle_theta_1*degree_angle, angle_theta_2*degree_angle, angle_theta_3*degree_angle);
+
             }
         } else {
             for (int z = end.z; z >= start.z; z -= STEP_z) {
                 inverse_kinematics(x,y,z,theta_e);
                 printf("%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, theta_2, theta_3);
-                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, PI+theta_2, theta_3);
-                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, (PI+theta_2)*degree_angle, (theta_3)*degree_angle);
+                // fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, -(theta_2), (PI/2)+theta_3);
+                // fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z, theta_0, theta_1, -(theta_2) , (PI/2)+theta_3);
+                // fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, (theta_0)*degree_angle, (theta_1)*degree_angle, -(theta_2)*degree_angle, ((PI/2)+theta_3)*degree_angle);
+                
+                ////////
+                fprintf(fptr, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_agnlerad, "%d %d %d %f %f %f %f \n", x, y, z,angle_theta_0, angle_theta_1, angle_theta_2, angle_theta_3);
+                fprintf(fptr_angledegree, "%d %d %d %f %f %f %f \n", x, y, z, angle_theta_0*degree_angle, angle_theta_1*degree_angle, angle_theta_2*degree_angle, angle_theta_3*degree_angle);
+
             }
         }
         dir *= -1; // flip direction each row
@@ -127,7 +164,7 @@ void zigzag_motion_2D(Point3D start, Point3D end,FILE *fptr ,FILE *fptr_agnlerad
 int main() {
 
     FILE *fptr;
-    fptr = fopen("datafiles/Angles_radians.txt", "w");  
+    fptr = fopen("datafiles/Angles.txt", "w");  
     if (!fptr) {
         perror("Error opening file");
         return 1;
