@@ -5,8 +5,8 @@ gcc -g src/InverseKinemarics.c -o build/InverseKinematics -lm
 
 ./build/InverseKinemarics
 
-echo "==============conversion=============================="
+# echo "==============conversion=============================="
 
-python3 launch/header_1.py
+# python3 launch/header_1.py
 
-echo "==================Done================================"
+# echo "==================Done================================"
